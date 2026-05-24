@@ -1,0 +1,20 @@
+{
+    "spotify": {
+        "client_id": "Spotify_client_id_here",
+        "client_secret": "Spotify_client_secret_here",
+        "redirect_uri": "http://127.0.0.1:8888/callback"
+    },
+    "discord": {
+        "client_id": "Discord_client_id_here",
+        "client_secret": "Discord_client_secret_here",
+        "redirect_uri": "http://127.0.0.1:8888/callback"
+    },
+    "settings": {
+        "volume_step": 5,
+        "volume_display_seconds": 3,
+        "poll_interval": 2.0,
+        "multi_press_window_ms": 500,
+        "hold_duration_seconds": 2.0
+    },
+    "active_profile": 3
+}
