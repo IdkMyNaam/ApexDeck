@@ -2,3 +2,4 @@
 .spotify_cache
 .slots_save
 config.json
+__pycache__
