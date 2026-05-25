@@ -1,6 +1,7 @@
 # ApexDeck
 
 A Python app that controls the SteelSeries Apex 5 OLED screen and roller, with swappable profiles.
+Should be compatible with : Apex 5, Apex 7, Apex Pro, Apex Pro TKL, Apex Pro TKL Wireless (only tested Apex 5)
 
 ## Profiles
 
