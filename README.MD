@@ -1,4 +1,4 @@
-# Apex 5 OLED Profiles
+# ApexDeck
 
 A Python app that controls the SteelSeries Apex 5 OLED screen and roller, with swappable profiles.
 
@@ -115,7 +115,7 @@ Coins save between sessions. Passive income: +2 coins every 30 seconds while the
 ## Project structure
 
 ```
-apex5Essentials/
+ApexDeck/
 ├── main.py                # entry point, key hook, profile switcher
 ├── gamesense.py           # SteelSeries GameSense OLED API wrapper
 ├── config.json            # your credentials and settings (gitignored)
