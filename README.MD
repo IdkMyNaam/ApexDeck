@@ -17,7 +17,7 @@ A Python app that controls the SteelSeries Apex 5 OLED screen and roller, with s
 - Windows (SteelSeries GG must be running)
 - Python 3.10+
 - SteelSeries Apex 5 keyboard
-- Spotify Premium
+- Spotify
 
 ## Setup
 
