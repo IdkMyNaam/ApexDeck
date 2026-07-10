@@ -24,6 +24,7 @@ from profiles.spotify import SpotifyProfile
 from profiles.clock import ClockProfile
 from profiles.discord import DiscordProfile
 from profiles.slots import SlotsProfile
+from profiles.autoclicker import AutoClickerProfile
 
 # ── Scan codes (confirmed from keydetect) ─────────────────────────────────────
 SC_VOL_UP    = -175
@@ -289,6 +290,7 @@ def main():
             discord_cfg.get("redirect_uri", "http://127.0.0.1:8888/callback"),
         ),
         SlotsProfile(),
+        AutoClickerProfile(),
     ]
 
     active_index = min(active_index, len(profiles) - 1)

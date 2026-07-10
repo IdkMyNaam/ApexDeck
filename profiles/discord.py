@@ -153,7 +153,8 @@ class DiscordProfile(BaseProfile):
             gamesense.show("Discord", "No credentials")
             return
         self._running = True
-        self._thread  = threading.Thread(target=self._worker, daemon=True)
+        self._gen = getattr(self, "_gen", 0) + 1
+        self._thread  = threading.Thread(target=self._worker, args=(self._gen,), daemon=True)
         self._thread.start()
 
     def stop(self):
@@ -374,7 +375,7 @@ class DiscordProfile(BaseProfile):
 
     # ── worker thread ─────────────────────────────────────────────────────────
 
-    def _worker(self):
+    def _worker(self, gen):
         # Get token (cached or fresh)
         token = _load_token()
         if not token:
@@ -433,7 +434,7 @@ class DiscordProfile(BaseProfile):
         last_poll    = time.time()
         last_marquee = time.time()
 
-        while self._running:
+        while self._running and gen == getattr(self, "_gen", gen):
             now = time.time()
 
             # Process queued actions (mute/deafen from key presses)

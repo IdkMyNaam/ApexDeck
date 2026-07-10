@@ -59,11 +59,18 @@ class SpotifyProfile(BaseProfile):
 
     def start(self):
         self._running = True
-        self._poll_thread = threading.Thread(target=self._poll_loop, daemon=True)
+        self._gen = getattr(self, "_gen", 0) + 1
+        self._poll_thread = threading.Thread(target=self._poll_loop, args=(self._gen,), daemon=True)
         self._poll_thread.start()
 
     def stop(self):
         self._running = False
+        # Clear any pending multi-press timer so it doesn't fire after switching profiles
+        with self._press_lock:
+            if self._press_timer:
+                self._press_timer.cancel()
+                self._press_timer = None
+            self._press_count = 0
         with self._lock:
             if self._state["temp_timer"]:
                 self._state["temp_timer"].cancel()
@@ -211,8 +218,8 @@ class SpotifyProfile(BaseProfile):
 
         threading.Timer(2, revert).start()
 
-    def _poll_loop(self):
-        while self._running:
+    def _poll_loop(self, gen):
+        while self._running and gen == getattr(self, "_gen", gen):
             try:
                 pb = self._sp.current_playback()
                 if pb and pb.get("item"):

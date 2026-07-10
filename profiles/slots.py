@@ -19,15 +19,15 @@ import os
 import gamesense
 from profiles.base import BaseProfile
 
-SYMBOLS    = ["NIG", "7", "$", "BAR", "***", "o"]
-PAYOUTS    = {"NIG":1000, "7": 100, "$": 20, "BAR": 10, "***": 5, "o": 3}
+SYMBOLS    = ["7", "$", "BAR", "***", "o"]
+PAYOUTS    = {"7": 100, "$": 20, "BAR": 10, "***": 5, "o": 3}
 PAYOUT_2   = 1
-WEIGHTS    = [2, 5, 15, 20, 25, 35]
+WEIGHTS    = [5, 15, 20, 25, 35]
 BET_OPTIONS       = [1, 5, 10, 25, 50, 100, "ALL"]
 STARTING_COINS    = 100
-PASSIVE_INCOME    = 5      # coins per interval
+PASSIVE_INCOME    = 2      # coins per interval
 PASSIVE_INTERVAL  = 30     # seconds between passive income ticks
-MAX_COINS         = 99999
+MAX_COINS         = 9999
 SPIN_TICK         = 0.08
 SPIN_FRAMES       = 12
 REEL_STOP         = 4
@@ -73,7 +73,8 @@ class SlotsProfile(BaseProfile):
 
     def start(self):
         self._running = True
-        self._passive_thread = threading.Thread(target=self._passive_loop, daemon=True)
+        self._gen = getattr(self, "_gen", 0) + 1
+        self._passive_thread = threading.Thread(target=self._passive_loop, args=(self._gen,), daemon=True)
         self._passive_thread.start()
         self._draw_idle()
 
@@ -128,10 +129,10 @@ class SlotsProfile(BaseProfile):
 
     # ── passive income loop ───────────────────────────────────────────────────
 
-    def _passive_loop(self):
-        while self._running:
+    def _passive_loop(self, gen):
+        while self._running and gen == getattr(self, "_gen", gen):
             time.sleep(PASSIVE_INTERVAL)
-            if not self._running:
+            if not self._running or gen != getattr(self, "_gen", gen):
                 break
             with self._lock:
                 self._coins = min(MAX_COINS, self._coins + PASSIVE_INCOME)
@@ -179,6 +180,8 @@ class SlotsProfile(BaseProfile):
         display = list(self._reels)
 
         for frame in range(SPIN_FRAMES + REEL_STOP * 2 + 1):
+            if not self._running:
+                break  # profile switched away — skip animation, still pay out below
             if frame >= SPIN_FRAMES:
                 reel_idx = (frame - SPIN_FRAMES) // REEL_STOP
                 for i in range(min(reel_idx + 1, 3)):
@@ -207,19 +210,21 @@ class SlotsProfile(BaseProfile):
         elif label == "WIN2":  line2 = f"Nice! +{payout}"
         else:                  line2 = f"Lose  {sign}{net}"
 
-        gamesense.show(line1, line2)
-        time.sleep(2.5)
+        if self._running:
+            gamesense.show(line1, line2)
+            time.sleep(2.5)
 
         # Check if broke
         with self._lock:
             coins   = self._coins
             broke   = coins < BET_OPTIONS[0]
 
-        if broke:
+        if broke and self._running:
             gamesense.show("Broke!", f"+{PASSIVE_INCOME}/{PASSIVE_INTERVAL}s")
             time.sleep(2)
 
-        self._draw_idle()
+        if self._running:
+            self._draw_idle()
 
     def _calc_payout(self, reels, bet):
         a, b, c = reels

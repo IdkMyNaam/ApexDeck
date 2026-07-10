@@ -59,7 +59,7 @@ def stop(icon, item=None):
     global process
     if process and process.poll() is None:
         print(f"[tray] stopping main.py (pid {process.pid})")
-        process.send_signal(signal.CTRL_C_EVENT if sys.platform == "win32" else signal.SIGTERM)
+        process.terminate()
         try:
             process.wait(timeout=5)
         except subprocess.TimeoutExpired:

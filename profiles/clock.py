@@ -30,7 +30,8 @@ class ClockProfile(BaseProfile):
 
     def start(self):
         self._running = True
-        self._thread = threading.Thread(target=self._tick, daemon=True)
+        self._gen = getattr(self, "_gen", 0) + 1
+        self._thread = threading.Thread(target=self._tick, args=(self._gen,), daemon=True)
         self._thread.start()
 
     def stop(self):
@@ -41,8 +42,8 @@ class ClockProfile(BaseProfile):
         fmt = "24h" if self._24h else "12h"
         print(f"[clock] switched to {fmt} format")
 
-    def _tick(self):
-        while self._running:
+    def _tick(self, gen):
+        while self._running and gen == getattr(self, "_gen", gen):
             now = datetime.now()
             if self._24h:
                 time_str = now.strftime("%H:%M:%S")
